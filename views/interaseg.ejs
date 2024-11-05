@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bridge - Aseguradora</title>
+    <link rel="stylesheet" href="/resource/css/style.css">
+    <link rel="stylesheet" href="/resource/css/AsegStyles.css">
+</head>
+
+<body>
+    <div class="body">
+        <h1>Aseguradora Page</h1>
+        <% if (login) { %>
+            <h1>Usuario conectado: <strong>
+                    <%= name %>
+                </strong></h1>
+            <a href="logout" class="a-logout">Logout</a>
+            <% } else { %>
+                <a href="login" class="a-login">Ir a Login</a>
+                <% } %>
+    </div>
+
+    <!-- Botones de navegación -->
+    <div class="btns-aseguradora">
+        <button onclick="togglePresupuestos()" class="btn-aseguradora">Presupuestos</button>
+        <button onclick="mostrarGestionOrdenes()" class="btn-aseguradora">Gestión de Órdenes</button>
+        <button onclick="mostrarOrdenesFinalizadas()" class="btn-aseguradora">Órdenes Finalizadas</button>
+    </div>
+
+    <!-- Tabla de Presupuestos -->
+    <div id="tablaPresupuestos" style="display: none;">
+        <h2>Presupuestos Asignados</h2>
+        <table>
+            <tr>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Patente</th>
+                <th>Nombre Dueño</th>
+                <th>Teléfono Dueño</th>
+                <th>Nombre Taller</th>
+                <th>Precio del Trabajo</th>
+                <th>Generar Orden</th>
+            </tr>
+            <% presupuestos.forEach(function(presupuesto) { %>
+                <tr>
+                    <td>
+                        <%= presupuesto.vehicle_make %>
+                    </td>
+                    <td>
+                        <%= presupuesto.vehicle_model %>
+                    </td>
+                    <td>
+                        <%= presupuesto.license_plate %>
+                    </td>
+                    <td>
+                        <%= presupuesto.owner_name %>
+                    </td>
+                    <td>
+                        <%= presupuesto.owner_phone %>
+                    </td>
+                    <td>
+                        <%= presupuesto.taller_name %>
+                    </td>
+                    <td>
+                        <%= presupuesto.work_value %>
+                    </td>
+                    <td><button onclick="mostrarFormularioOrden(<%= presupuesto.budget_id %>)">Generar Orden</button>
+                    </td>
+
+                </tr>
+                <% }); %>
+        </table>
+    </div>
+
+    <!-- Formulario para Orden de Trabajo -->
+    <div id="formularioOrden" style="display: none;">
+        <h2>Generar Orden de Trabajo</h2>
+        <form action="/crearOrden" method="POST">
+            <input type="hidden" name="budget_id" id="budget_id">
+
+            <!-- Contenedor para mostrar imágenes del presupuesto -->
+            <div id="imagenes-presupuesto"></div>
+
+            <div id="pdf-container">
+                <h3>Presupuesto PDF</h3>
+                <iframe id="pdf-frame" width="100%" height="500px" style="display: none;"></iframe>
+                <p id="no-pdf-message" style="display: none;">No hay PDF asociado a este presupuesto.</p>
+            </div>
+
+
+            <!-- Modal para visualizar las imágenes en grande -->
+            <div id="modal" class="modal">
+                <span class="close" onclick="cerrarModal()">&times;</span>
+                <img class="modal-content" id="modal-image">
+                <iframe class="modal-content" id="modal-iframe" style="display: none;" width="100%"
+                    height="80%"></iframe>
+                <a class="prev" onclick="cambiarImagen(-1)">&#10094;</a>
+                <a class="next" onclick="cambiarImagen(1)">&#10095;</a>
+            </div>
+
+            <!-- Campos de solo lectura para datos del presupuesto -->
+            <label>Marca:</label>
+            <input type="text" id="vehicle_make" readonly>
+
+            <label>Modelo:</label>
+            <input type="text" id="vehicle_model" readonly>
+
+            <label>Patente:</label>
+            <input type="text" id="license_plate" readonly>
+
+            <label>Nombre Dueño:</label>
+            <input type="text" id="owner_name" readonly>
+
+            <label>Teléfono Dueño:</label>
+            <input type="text" id="owner_phone" readonly>
+
+            <label>Nombre Taller:</label>
+            <input type="text" id="taller_name" readonly>
+
+            <label>Precio del Trabajo:</label>
+            <input type="text" id="work_value" readonly>
+
+            <!-- Campos para completar la orden de trabajo -->
+            <label for="chassis_number">Número de Chasis:</label>
+            <input type="text" name="chassis_number" required>
+
+            <label for="year">Año:</label>
+            <input type="number" name="year" required>
+
+            <label for="color">Color:</label>
+            <input type="text" name="color" required>
+
+            <label for="door_count">Cantidad de Puertas:</label>
+            <input type="number" name="door_count" required>
+
+            <label for="ac">Aire Acondicionado:</label>
+            <select name="ac" required>
+                <option value="si">Sí</option>
+                <option value="no">No</option>
+            </select>
+
+            <button type="submit">Enviar Orden</button>
+        </form>
+    </div>
+
+
+
+
+    <script>
+        let imageSources = []; // Array para guardar las imágenes y PDFs
+        let currentImageIndex = 0;
+
+        // Función para alternar la visibilidad de la tabla de presupuestos y el formulario de orden
+        function togglePresupuestos() {
+            const tabla = document.getElementById("tablaPresupuestos");
+            const formulario = document.getElementById("formularioOrden");
+
+            if (tabla.style.display === "none" || tabla.style.display === "") {
+                tabla.style.display = "block";
+                formulario.style.display = "none";
+            } else {
+                tabla.style.display = "none";
+            }
+        }
+
+        function mostrarFormularioOrden(id) {
+    if (!id) {
+        console.error("ID de presupuesto no válido");
+        return;
+    }
+
+    document.getElementById("tablaPresupuestos").style.display = "none";
+    document.getElementById("formularioOrden").style.display = "block";
+    document.getElementById("budget_id").value = id;
+
+    fetch(`/obtenerPresupuesto/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("vehicle_make").value = data.vehicle_make;
+            document.getElementById("vehicle_model").value = data.vehicle_model;
+            document.getElementById("license_plate").value = data.license_plate;
+            document.getElementById("owner_name").value = data.owner_name;
+            document.getElementById("owner_phone").value = data.owner_phone;
+            document.getElementById("taller_name").value = data.taller_name;
+            document.getElementById("work_value").value = data.work_value;
+
+            // Llamada para obtener y visualizar el PDF solo si el ID es válido
+            fetch(`/obtenerPDF/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.pdfData) {
+                        document.getElementById("pdf-frame").style.display = "block";
+                        document.getElementById("pdf-frame").src = data.pdfData;
+                        document.getElementById("no-pdf-message").style.display = "none";
+                    } else {
+                        document.getElementById("no-pdf-message").style.display = "block";
+                        document.getElementById("pdf-frame").style.display = "none";
+                    }
+                })
+                .catch(error => console.error("Error al cargar el PDF:", error));
+            
+            // Llamada para obtener y visualizar las imágenes
+            fetch(`/obtenerImagenes/${id}`)
+                .then(response => response.json())
+                .then(imageData => {
+                    const imageContainer = document.getElementById('imagenes-presupuesto');
+                    imageContainer.innerHTML = "";
+                    imageSources = [];
+
+                    imageData.images.forEach((img, index) => {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = img.data;
+                        imgElement.classList.add('thumbnail');
+                        imgElement.onclick = () => abrirModal(index, 'image');
+                        imageContainer.appendChild(imgElement);
+                        imageSources.push({ src: imgElement.src, type: 'image' });
+                    });
+                })
+                .catch(error => console.error("Error al cargar las imágenes:", error));
+        })
+        .catch(error => console.error('Error al obtener los datos del presupuesto:', error));
+}
+
+
+        // Función para abrir el modal y mostrar la imagen o PDF seleccionado
+        function abrirModal(index, fileType) {
+            currentImageIndex = index;
+            const modal = document.getElementById("modal");
+            const modalImg = document.getElementById("modal-image");
+            const modalIframe = document.getElementById("modal-iframe");
+
+            modal.style.display = "block";
+
+            if (fileType === 'image') {
+                modalImg.style.display = "block";
+                modalIframe.style.display = "none";
+                modalImg.src = imageSources[currentImageIndex].src;
+            } else if (fileType === 'pdf') {
+                modalImg.style.display = "none";
+                modalIframe.style.display = "block";
+                modalIframe.src = imageSources[currentImageIndex].src;
+            }
+        }
+
+        // Función para cerrar el modal
+        function cerrarModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        // Función para cambiar entre imágenes y PDFs en el modal
+        function cambiarImagen(direction) {
+            currentImageIndex += direction;
+
+            if (currentImageIndex < 0) {
+                currentImageIndex = imageSources.length - 1;
+            } else if (currentImageIndex >= imageSources.length) {
+                currentImageIndex = 0;
+            }
+
+            const currentFile = imageSources[currentImageIndex];
+            if (currentFile.type === 'image') {
+                abrirModal(currentImageIndex, 'image');
+            } else if (currentFile.type === 'pdf') {
+                abrirModal(currentImageIndex, 'pdf');
+            }
+        }
+
+        // Al cargar la página, intenta cargar el PDF si está disponible
+        document.addEventListener("DOMContentLoaded", function () {
+            const budgetId = "<%= presupuesto.budget_id %>";
+
+            fetch(`/obtenerPDF/${budgetId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.pdfUrl) {
+                        document.getElementById('pdf-frame').src = data.pdfUrl;
+                    } else {
+                        document.getElementById('no-pdf-message').style.display = "block";
+                        document.getElementById('pdf-frame').style.display = "none";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error al cargar el PDF:", error);
+                });
+        });
+    </script>
+
+
+</body>
+
+</html>

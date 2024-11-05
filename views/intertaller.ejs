@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bridge</title>
+    <link rel="stylesheet" href="/resource/css/style.css">
+    <link rel="stylesheet" href="/resource/css/BudgesStyles.css">
+</head>
+
+<body>
+    <div class="body">
+        <h1>Taller Page</h1>
+        <% if (login) { %>
+            <h1>Usuario conectado: <strong><%= name %></strong></h1>
+            <a href="logout" class="a-logout">Logout</a>
+        <% } else { %>
+            <h1><strong><%= name %></strong></h1>
+            <a href="login" class="a-login">Ir a Login</a>
+        <% } %>
+    </div>
+
+    <div class="btns-taller">
+        <!-- Botón para mostrar/ocultar el formulario de presupuesto -->
+        <button onclick="mostrarFormularioPresupuesto()" class="btn-crear-presupuesto">Crear Presupuesto</button>
+        <button class="btn-taller" onclick="">Órdenes Asignadas</button>
+        <button class="btn-taller" onclick="">Órdenes Finalizadas</button>
+    </div>
+    <!-- Formulario de presupuesto (oculto inicialmente) -->
+    <div id="formularioPresupuesto" class="form-presupuesto">
+        <form action="/crearPresupuesto" method="POST" enctype="multipart/form-data">
+            <h2>Crear Presupuesto</h2>
+
+            <label for="vehicle_make">Marca:</label>
+            <input type="text" name="vehicle_make" required>
+
+            <label for="vehicle_model">Modelo:</label>
+            <input type="text" name="vehicle_model" required>
+
+            <label for="license_plate">Patente:</label>
+            <input type="text" name="license_plate" required>
+
+            <label for="owner_name">Nombre del Dueño:</label>
+            <input type="text" name="owner_name" required>
+
+            <label for="owner_surname">Apellido del Dueño:</label>
+            <input type="text" name="owner_surname" required>
+
+            <label for="owner_dni">DNI del Dueño:</label>
+            <input type="text" name="owner_dni" required>
+
+            <label for="owner_phone">Teléfono del Dueño:</label>
+            <input type="text" name="owner_phone" required>
+
+            <label for="insurance_company_id">Aseguradora:</label>
+            <select name="insurance_company_id" required>
+                <% aseguradoras.forEach(function(aseguradora) { %>
+                    <option value="<%= aseguradora.user_id %>"><%= aseguradora.name %></option>
+                <% }); %>
+            </select>
+
+            <label for="repair_parts">Partes a Reparar:</label>
+            <div>
+                <input type="checkbox" name="repair_parts" value="delantera"> Delantera<br>
+                <input type="checkbox" name="repair_parts" value="trasera"> Trasera<br>
+                <input type="checkbox" name="repair_parts" value="izquierda"> Izquierda<br>
+                <input type="checkbox" name="repair_parts" value="derecha"> Derecha<br>
+                <input type="checkbox" name="repair_parts" value="superior"> Superior<br>
+            </div>
+
+            <label for="work_description">Descripción del Trabajo:</label>
+            <textarea name="work_description"></textarea>
+
+            <label for="work_value">Valor del Trabajo:</label>
+            <input type="number" name="work_value" required>
+
+            <label for="start_date">Fecha de Inicio:</label>
+            <input type="date" name="start_date">
+
+            <label for="end_date">Fecha de Finalización:</label>
+            <input type="date" name="end_date">
+
+            <label for="before_photos">Fotos del Vehículo (Antes):</label>
+            <input type="file" name="before_photos" multiple accept="image/jpeg, image/png, image/jpg, application/pdf">
+
+            <button type="submit" class="btn-guardar-presupuesto">Guardar Presupuesto</button>
+        </form>
+    </div>
+
+    <!-- Script para mostrar/ocultar el formulario -->
+    <script>
+        function mostrarFormularioPresupuesto() {
+            const formulario = document.getElementById("formularioPresupuesto");
+            if (formulario.style.display === "none") {
+                formulario.style.display = "block";
+            } else {
+                formulario.style.display = "none";
+            }
+        }
+    </script>
+</body>
+
+</html>

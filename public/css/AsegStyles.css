@@ -1,0 +1,249 @@
+
+/* Contenedor de la página principal */
+.body {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Botones de navegación */
+.btns-aseguradora {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* Estilo de botones */
+.btn-aseguradora {
+    width: 200px;
+    height: 60px;
+    background-color: #1d1d1d;
+    color: #ffffff;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+}
+
+.btn-aseguradora:hover {
+    background-color: #1e3a8a;
+    transform: scale(1.05);
+}
+
+/* Tabla de Presupuestos */
+#tablaPresupuestos {
+    background-color: #161616;
+    color: white;
+    max-width: 90%;
+    margin: 20px auto;
+    padding: 20px;
+    box-shadow: 0 0 19px rgba(255, 255, 255, 0.651);
+    border-radius: 10px;
+}
+
+#tablaPresupuestos h2 {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#tablaPresupuestos table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#tablaPresupuestos th, #tablaPresupuestos td {
+    padding: 12px;
+    border: 1px solid #444;
+    text-align: center;
+}
+
+#tablaPresupuestos th {
+    background-color: #252525;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+#tablaPresupuestos td {
+    background-color: #1d1d1d;
+}
+
+/* Botón "Generar Orden" en cada fila de la tabla */
+#tablaPresupuestos button {
+    padding: 10px;
+    background-color: #6f42c1;
+    color: #ffffff;
+    border: none;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+}
+
+#tablaPresupuestos button:hover {
+    background-color: #61428f;
+}
+
+/* Formulario de Orden de Trabajo */
+#formularioOrden {
+    background-color: #161616;
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    box-shadow: 0 0 19px rgba(255, 255, 255, 0.651);
+    border-radius: 10px;
+    color: white;
+    display: none; /* Oculto por defecto */
+}
+
+#formularioOrden h2 {
+    font-size: 24px;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#formularioOrden label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+#formularioOrden input[type="text"],
+#formularioOrden input[type="number"],
+#formularioOrden select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: #252525;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+/* Botón de "Enviar Orden" */
+#formularioOrden button {
+    width: 100%;
+    padding: 10px;
+    background-color: #1d4ed8;
+    color: #ffffff;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+}
+
+#formularioOrden button:hover {
+    background-color: #1e3a8a;
+}
+
+
+
+/* Modal para visualizar imagen en grande */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    padding-top: 60px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Imagen dentro del modal */
+.modal-content {
+    margin: auto;
+    display: block;
+    max-width: 80%;
+    width: auto;
+    height: auto;
+    max-height: 80%;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+/* Botón para cerrar el modal */
+.close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close:hover {
+    color: #bbb;
+}
+
+/* Botones de navegación */
+.prev, .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    width: auto;
+    padding: 16px;
+    color: white;
+    font-weight: bold;
+    font-size: 40px;
+    transition: color 0.3s;
+    user-select: none;
+}
+
+.next {
+    right: 10px;
+}
+
+.prev {
+    left: 10px;
+}
+
+.prev:hover, .next:hover {
+    color: #bbb;
+}
+
+/* Efecto de zoom para la imagen en miniatura */
+#imagenes-presupuesto img {
+    transition: transform 0.3s;
+    border-radius: 6px;
+}
+
+#imagenes-presupuesto img {
+    width: 100px; /* Ajusta el tamaño de la miniatura según tu preferencia */
+    height: auto;
+    margin: 5px;
+    cursor: pointer;
+    transition: transform 0.3s;
+    border-radius: 6px;
+}
+
+.pdf-thumbnail {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f1f1f1;
+    color: #333;
+    font-size: 24px;
+    cursor: pointer;
+    border-radius: 6px;
+    margin: 5px;
+    transition: transform 0.3s;
+}
+.pdf-thumbnail:hover {
+    transform: scale(1.05);
+}

@@ -1,0 +1,111 @@
+/* Contenedor del formulario */
+.form-presupuesto {
+    background-color: #161616;
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    box-shadow: 0 0 19px rgba(255, 255, 255, 0.651);
+    border-radius: 10px;
+    color: white;
+    display: none; /* Oculto por defecto */
+}
+
+/* Títulos y etiquetas del formulario */
+.form-presupuesto h2 {
+    font-size: 24px;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-presupuesto label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* Campos de entrada */
+.form-presupuesto input[type="text"],
+.form-presupuesto input[type="number"],
+.form-presupuesto input[type="date"],
+.form-presupuesto select,
+.form-presupuesto textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: #252525;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+/* Checkbox */
+.form-presupuesto input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+/* Botón de "Guardar Presupuesto" */
+.btn-guardar-presupuesto {
+    width: 100%;
+    padding: 10px;
+    background-color: #6f42c1;
+    color: #ffffff;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.btn-guardar-presupuesto:hover {
+    background-color: #61428f;
+}
+
+
+.btn-crear-presupuesto:hover {
+    background-color: #1e3a8a;
+}
+
+/* Contenedor de botones en línea */
+.btns-taller {
+    margin-top: 100px;
+    display: flex;
+    justify-content: center; /* Alinea los botones al centro */
+    gap: 15px; /* Espacio entre los botones */
+    margin-top: 20px;
+}
+
+/* Botón cuadrado de "Crear Presupuesto" */
+.btn-crear-presupuesto,
+.btn-taller {
+    width: 200px;
+    /*Anchocuadrado*/height: 200px;
+    /*Altocuadrado*/background-color: #1d1d1d;
+    color: #ffffff;
+    border: none;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    /*Centraeltextoverticalmente*/justify-content: center;
+    /*Centraeltextohorizontalmente*/text-align: center;
+    border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    -ms-border-radius: 6px;
+    -o-border-radius: 6px;
+}
+
+/* Efecto hover para los botones cuadrados */
+.btn-crear-presupuesto:hover,
+.btn-taller:hover {
+    background-color: #1e3a8a;
+    transform: scale(1.05); /* Pequeño efecto de agrandamiento */
+}
