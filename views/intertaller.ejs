@@ -7,6 +7,7 @@
     <title>Bridge</title>
     <link rel="stylesheet" href="/resource/css/style.css">
     <link rel="stylesheet" href="/resource/css/BudgesStyles.css">
+    <link rel="stylesheet" href="/resource/css/TallerStyles.css">
 </head>
 
 <body>
@@ -96,26 +97,30 @@
 
 
     <div id="ordenesContenedor" style="display: none;">
-        <table>
-            <thead>
-                <tr>
-                    <th>Orden ID</th>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>Patente</th>
-                    <th>Dueño</th>
-                    <th>Teléfono</th>
-                    <th>Valor</th>
-                    <th>Estado</th>
-                    <th>Fecha de Orden</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="ordenesTablaBody">
-                <!-- Las filas de órdenes se insertarán aquí -->
-            </tbody>
-        </table>
+        <div id="tablaOrdenesAsignadas">
+            <h2>Órdenes Asignadas</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Orden ID</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Patente</th>
+                        <th>Dueño</th>
+                        <th>Teléfono</th>
+                        <th>Valor</th>
+                        <th>Estado</th>
+                        <th>Fecha de Orden</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="ordenesTablaBody">
+                    <!-- Las filas de órdenes se insertarán aquí -->
+                </tbody>
+            </table>
+        </div>
     </div>
+    
 
 
     <!-- Script para mostrar/ocultar el formulario -->

@@ -1,0 +1,71 @@
+/* Estilo general para la tabla de órdenes */
+#tablaOrdenesAsignadas {
+    background-color: #161616;
+    color: white;
+    max-width: 90%;
+    margin: 20px auto;
+    padding: 20px;
+    box-shadow: 0 0 19px rgba(255, 255, 255, 0.651);
+    border-radius: 10px;
+}
+
+#tablaOrdenesAsignadas h2 {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#tablaOrdenesAsignadas table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#tablaOrdenesAsignadas th, #tablaOrdenesAsignadas td {
+    padding: 12px;
+    border: 1px solid #444;
+    text-align: center;
+}
+
+#tablaOrdenesAsignadas th {
+    background-color: #252525;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+#tablaOrdenesAsignadas td {
+    background-color: #1d1d1d;
+}
+
+/* Botones en cada fila de la tabla */
+#tablaOrdenesAsignadas .action-button {
+    padding: 10px;
+    background-color: #6f42c1;
+    color: #ffffff;
+    border: none;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+}
+
+#tablaOrdenesAsignadas .action-button:hover {
+    background-color: #61428f;
+}
+
+/* Colores de estado en las filas de la tabla */
+#tablaOrdenesAsignadas .en-proceso {
+    color: #ffcc00; /* Color amarillo para "En proceso" */
+}
+
+#tablaOrdenesAsignadas .pendiente {
+    color: #ff6347; /* Color rojo para "Pendiente" */
+}
+
+#tablaOrdenesAsignadas .finalizada {
+    color: #00cc66; /* Color verde para "Finalizada" */
+}
+
+#tablaOrdenesAsignadas .rechazada {
+    color: #cc0000; /* Color rojo oscuro para "Rechazada" */
+}
