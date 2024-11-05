@@ -27,13 +27,14 @@
     </div>
 
     <div class="btns-taller">
-        <!-- Botón para mostrar/ocultar el formulario de presupuesto -->
-        <button onclick="mostrarFormularioPresupuesto()" class="btn-crear-presupuesto">Crear Presupuesto</button>
-        <button class="btn-taller" onclick="toggleOrdenesAsignadas()">Órdenes Asignadas</button>
-        <button class="btn-taller" onclick="">Órdenes Finalizadas</button>
+        <button onclick="toggleDisplay('formularioPresupuesto')" class="btn-crear-presupuesto">Crear
+            Presupuesto</button>
+        <button onclick="toggleDisplay('ordenesContenedor')" class="btn-taller">Órdenes Asignadas</button>
+        <button onclick="toggleDisplay('ordenesFinalizadas')" class="btn-taller">Órdenes Finalizadas</button>
     </div>
+
     <!-- Formulario de presupuesto (oculto inicialmente) -->
-    <div id="formularioPresupuesto" class="form-presupuesto">
+    <div id="formularioPresupuesto" class="form-presupuesto" style="display: none;">
         <form action="/crearPresupuesto" method="POST" enctype="multipart/form-data">
             <h2>Crear Presupuesto</h2>
 
@@ -120,51 +121,66 @@
             </table>
         </div>
     </div>
-    
+
+    <div id="ordenesFinalizadas" style="display: none;">
+        <h2>Órdenes Finalizadas</h2>
+        <!-- Contenido de órdenes finalizadas -->
+        <!-- ... -->
+    </div>
+
+
+    <!-- Formulario de Finalización (oculto inicialmente) -->
+    <div id="formularioFinalizacion" class="form-finalizacion" style="display: none;">
+        <form action="/finalizarOrden" method="POST" enctype="multipart/form-data">
+            <h2>Finalizar Orden de Trabajo</h2>
+            <input type="hidden" name="order_id" id="order_id">
+
+            <label for="completion_date">Fecha de Finalización:</label>
+            <input type="date" name="completion_date" required>
+
+            <label for="completed_photos">Fotos del Vehículo (Después):</label>
+            <input type="file" name="completed_photos" multiple accept="image/jpeg, image/png, image/jpg">
+
+            <label for="signed_pdf">PDF de Orden Firmada:</label>
+            <input type="file" name="signed_pdf" accept="application/pdf">
+
+            <button type="submit" class="btn-finalizar-orden">Marcar como Finalizado</button>
+            <button type="button" onclick="cerrarFormularioFinalizacion()" class="btn-cancelar">Cancelar</button>
+        </form>
+    </div>
+
 
 
     <!-- Script para mostrar/ocultar el formulario -->
     <script>
-        function mostrarFormularioPresupuesto() {
-            const formulario = document.getElementById("formularioPresupuesto");
-            if (formulario.style.display === "none") {
-                formulario.style.display = "block";
-            } else {
-                formulario.style.display = "none";
+        function toggleDisplay(sectionId) {
+            // Ocultar todos los contenedores
+            document.getElementById("formularioPresupuesto").style.display = "none";
+            document.getElementById("ordenesContenedor").style.display = "none";
+            document.getElementById("ordenesFinalizadas").style.display = "none";
+
+            // Mostrar el contenedor seleccionado
+            const section = document.getElementById(sectionId);
+            section.style.display = section.style.display === "none" ? "block" : "none";
+
+            // Cargar órdenes si es la sección de Órdenes Asignadas y aún no están cargadas
+            if (sectionId === "ordenesContenedor" && !ordenesCargadas) {
+                cargarOrdenesAsignadas();
+                ordenesCargadas = true;
             }
         }
 
-
-        let ordenesCargadas = false; // Bandera para verificar si ya se han cargado las órdenes
-
-        function toggleOrdenesAsignadas() {
-            const contenedor = document.getElementById('ordenesContenedor');
-
-            if (contenedor.style.display === "none") {
-                // Mostrar el contenedor
-                contenedor.style.display = "block";
-
-                // Cargar órdenes solo si aún no se han cargado
-                if (!ordenesCargadas) {
-                    cargarOrdenesAsignadas();
-                    ordenesCargadas = true; // Actualizar la bandera para no volver a cargar
-                }
-            } else {
-                // Ocultar el contenedor
-                contenedor.style.display = "none";
-            }
-        }
+        let ordenesCargadas = false;
 
         function cargarOrdenesAsignadas() {
-    fetch('/ordenesAsignadas')
-        .then(response => response.json())
-        .then(ordenes => {
-            const tablaBody = document.getElementById('ordenesTablaBody');
-            tablaBody.innerHTML = ''; // Limpiar cualquier contenido previo
-
-            ordenes.forEach(orden => {
-                const fila = document.createElement('tr');
-                fila.innerHTML = `
+            fetch('/ordenesAsignadas')
+                .then(response => response.json())
+                .then(ordenes => {
+                    const tablaBody = document.getElementById('ordenesTablaBody');
+                    tablaBody.innerHTML = '';
+                    ordenes.forEach(orden => {
+                        const fila = document.createElement('tr');
+                        fila.innerHTML = `
                     <td>${orden.order_id}</td>
                     <td>${orden.vehicle_make}</td>
                     <td>${orden.vehicle_model}</td>
@@ -176,23 +192,30 @@
                     <td>${new Date(orden.order_date).toISOString().split('T')[0]}</td>
                     <td>
                         <button onclick="descargarPDF(${orden.order_id})" class="action-button">Descargar PDF</button>
-                        <button class="action-button">Marcar como Finalizado</button>
+                        <button onclick="abrirFormularioFinalizacion(${orden.order_id})" class="action-button">Finalizado</button>
                     </td>
                 `;
-                tablaBody.appendChild(fila);
-            });
-        })
-        .catch(error => {
-            console.error("Error al cargar las órdenes asignadas:", error);
-        });
-}
+                        tablaBody.appendChild(fila);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error al cargar las órdenes asignadas:", error);
+                });
+        }
 
-function descargarPDF(orderId) {
-    // Redirige a la ruta de descarga de PDF
-    window.location.href = `/descargarOrden/${orderId}`;
-}
+        function abrirFormularioFinalizacion(orderId) {
+            document.getElementById("formularioFinalizacion").style.display = "block";
+            document.getElementById("order_id").value = orderId; // Asigna el ID de la orden al formulario
+        }
+
+        function cerrarFormularioFinalizacion() {
+            document.getElementById("formularioFinalizacion").style.display = "none";
+        }
 
 
+        function descargarPDF(orderId) {
+            window.location.href = `/descargarOrden/${orderId}`;
+        }
     </script>
 </body>
 

@@ -47,6 +47,7 @@
     cursor: pointer;
     border-radius: 6px;
     transition: background-color 0.3s;
+    margin: 5px;
 }
 
 #tablaOrdenesAsignadas .action-button:hover {
@@ -68,4 +69,76 @@
 
 #tablaOrdenesAsignadas .rechazada {
     color: #cc0000; /* Color rojo oscuro para "Rechazada" */
+}
+
+
+/* Estilo para el formulario de finalización */
+.form-finalizacion {
+    background-color: #1d1d1d; /* Fondo oscuro */
+    color: #ffffff; /* Texto en blanco */
+    width: 350px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 19px rgba(255, 255, 255, 0.651);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+}
+
+.form-finalizacion h2 {
+    font-size: 22px;
+    text-align: center;
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+
+.form-finalizacion label {
+    font-size: 14px;
+    color: #ffffff;
+    margin-top: 10px;
+}
+
+.form-finalizacion input[type="date"],
+.form-finalizacion input[type="file"] {
+    background-color: #252525;
+    color: #ffffff;
+    border: 1px solid #444;
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: 4px;
+    width: 95%;
+}
+
+.form-finalizacion .btn-finalizar-orden {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #6f42c1; /* Color púrpura similar a los botones de acciones */
+    color: #ffffff;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+}
+
+.form-finalizacion .btn-finalizar-orden:hover {
+    background-color: #61428f;
+}
+
+.form-finalizacion .btn-cancelar {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #444444; /* Color gris para cancelar */
+    color: #ffffff;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+}
+
+.form-finalizacion .btn-cancelar:hover {
+    background-color: #333333;
 }

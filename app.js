@@ -103,7 +103,6 @@ app.post('/register', async (req, res) => {
     });
 });
 
-
 // 11. - Autenticación
 // Modificación en el proceso de autenticación para asegurar una sesión limpia y redirigir según el rol
 app.post('/auth', async (req, res) => {
@@ -196,7 +195,6 @@ app.get('/', (req, res) => {
         });
     }
 });
-
 
 // Ruta para interaseg, solo accesible para usuarios con rol 'aseguradora'
 app.get('/interaseg', (req, res) => {
@@ -302,7 +300,6 @@ app.post('/crearPresupuesto', async (req, res) => {
         }
     });
 });
-
 
 
 // Nueva ruta para obtener los datos de presupuesto según el ID
@@ -413,7 +410,6 @@ app.get('/obtenerImagenes/:budgetId', (req, res) => {
     });
 });
 
-
 // Función para obtener el tipo MIME
 function getMimeType(fileType) {
     if (fileType) {
@@ -423,7 +419,6 @@ function getMimeType(fileType) {
         return ""; // o algún valor por defecto
     }
 }
-
 
 app.get('/interaseg/:id', (req, res) => {
     const budgetId = req.params.id;
@@ -489,7 +484,6 @@ app.post('/crearOrden', (req, res) => {
     });
 });
 
-
 // Ruta para obtener las órdenes asignadas en formato JSON
 app.get('/ordenesAsignadas', (req, res) => {
     if (!req.session.loggedin || req.session.rol !== 'taller') {
@@ -516,8 +510,6 @@ app.get('/ordenesAsignadas', (req, res) => {
         res.json(results); // Enviar las órdenes como JSON
     });
 });
-
-
 
 const PDFDocument = require('pdfkit');
 
@@ -596,10 +588,41 @@ app.get('/descargarOrden/:order_id', (req, res) => {
     });
 });
 
+app.post('/finalizarOrden', async (req, res) => {
+    const { order_id, completion_date } = req.body;
+    let completedPhotos = [];
+    let pdfDataBuffer = null;
 
+    // Procesar las fotos finales
+    if (req.files && req.files.completed_photos) {
+        const files = Array.isArray(req.files.completed_photos) ? req.files.completed_photos : [req.files.completed_photos];
+        for (let file of files) {
+            if (file.mimetype.startsWith('image/')) {
+                const compressedPhoto = await sharp(file.data)
+                    .resize({ width: 800 })
+                    .jpeg({ quality: 70 })
+                    .toBuffer();
+                completedPhotos.push(compressedPhoto);
+            }
+        }
+    }
 
+    // Procesar el PDF firmado
+    if (req.files && req.files.signed_pdf && req.files.signed_pdf.mimetype === 'application/pdf') {
+        pdfDataBuffer = req.files.signed_pdf.data;
+    }
 
-
+    // Insertar en la tabla order_completions
+    const query = `INSERT INTO order_completions (order_id, completion_date, completed_photos, signed_pdf)
+                   VALUES (?, ?, ?, ?)`;
+    connection.query(query, [order_id, completion_date, JSON.stringify(completedPhotos), pdfDataBuffer], (error) => {
+        if (error) {
+            console.error("Error al finalizar la orden:", error);
+            return res.redirect('/');  
+        }
+        res.redirect('/');  // Redirige a la página de órdenes asignadas
+    });
+})
 // 13. - Logout
 app.get('/logout', (req, res) => {
     req.session.destroy(() => {
