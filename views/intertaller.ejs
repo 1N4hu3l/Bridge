@@ -156,36 +156,41 @@
         }
 
         function cargarOrdenesAsignadas() {
-            fetch('/ordenesAsignadas')
-                .then(response => response.json())
-                .then(ordenes => {
-                    const tablaBody = document.getElementById('ordenesTablaBody');
-                    tablaBody.innerHTML = ''; // Limpiar cualquier contenido previo
+    fetch('/ordenesAsignadas')
+        .then(response => response.json())
+        .then(ordenes => {
+            const tablaBody = document.getElementById('ordenesTablaBody');
+            tablaBody.innerHTML = ''; // Limpiar cualquier contenido previo
 
-                    ordenes.forEach(orden => {
-                        const fila = document.createElement('tr');
-                        fila.innerHTML = `
-                        <td>${orden.order_id}</td>
-                        <td>${orden.vehicle_make}</td>
-                        <td>${orden.vehicle_model}</td>
-                        <td>${orden.license_plate}</td>
-                        <td>${orden.owner_name}</td>
-                        <td>${orden.owner_phone}</td>
-                        <td>${orden.work_value}</td>
-                        <td>${orden.status}</td>
-                        <td>${new Date(orden.order_date).toISOString().split('T')[0]}</td>
-                        <td>
-                            <button>Descargar PDF</button>
-                            <button>Marcar como Finalizado</button>
-                        </td>
-                    `;
-                        tablaBody.appendChild(fila);
-                    });
-                })
-                .catch(error => {
-                    console.error("Error al cargar las órdenes asignadas:", error);
-                });
-        }
+            ordenes.forEach(orden => {
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td>${orden.order_id}</td>
+                    <td>${orden.vehicle_make}</td>
+                    <td>${orden.vehicle_model}</td>
+                    <td>${orden.license_plate}</td>
+                    <td>${orden.owner_name}</td>
+                    <td>${orden.owner_phone}</td>
+                    <td>${orden.work_value}</td>
+                    <td>${orden.status}</td>
+                    <td>${new Date(orden.order_date).toISOString().split('T')[0]}</td>
+                    <td>
+                        <button onclick="descargarPDF(${orden.order_id})" class="action-button">Descargar PDF</button>
+                        <button class="action-button">Marcar como Finalizado</button>
+                    </td>
+                `;
+                tablaBody.appendChild(fila);
+            });
+        })
+        .catch(error => {
+            console.error("Error al cargar las órdenes asignadas:", error);
+        });
+}
+
+function descargarPDF(orderId) {
+    // Redirige a la ruta de descarga de PDF
+    window.location.href = `/descargarOrden/${orderId}`;
+}
 
 
     </script>

@@ -519,6 +519,86 @@ app.get('/ordenesAsignadas', (req, res) => {
 
 
 
+const PDFDocument = require('pdfkit');
+
+app.get('/descargarOrden/:order_id', (req, res) => {
+    const orderId = req.params.order_id;
+
+    // Consultar los datos necesarios de las tablas budgets y work_order
+    const query = `
+        SELECT budgets.*, work_order.chassis_number, work_order.year_car, work_order.color,
+               work_order.door_count, work_order.air_conditioning, work_order.status
+        FROM budgets
+        INNER JOIN work_order ON budgets.budget_id = work_order.budget_id
+        WHERE work_order.order_id = ?
+    `;
+
+    connection.query(query, [orderId], (error, results) => {
+        if (error || results.length === 0) {
+            console.error("Error al obtener datos para PDF:", error);
+            return res.status(500).send("No se pudo generar el PDF");
+        }
+
+        const orderData = results[0];
+
+        // Crear el documento PDF
+        const doc = new PDFDocument();
+
+        // Configurar la respuesta para la descarga
+        res.setHeader('Content-Disposition', `attachment; filename="orden_trabajo_${orderId}.pdf"`);
+        res.setHeader('Content-Type', 'application/pdf');
+
+        // Escribir directamente en la respuesta
+        doc.pipe(res);
+
+        // Contenido del PDF
+        doc.fontSize(18).text('Orden de Trabajo', { align: 'center' });
+        doc.moveDown();
+
+        // Información general de la orden y el vehículo
+        doc.fontSize(14).text(`Orden ID: ${orderId}`);
+        doc.text(`Marca: ${orderData.vehicle_make}`);
+        doc.text(`Modelo: ${orderData.vehicle_model}`);
+        doc.text(`Patente: ${orderData.license_plate}`);
+        doc.text(`Dueño: ${orderData.owner_name} ${orderData.owner_surname}`);
+        doc.text(`Teléfono del Dueño: ${orderData.owner_phone}`);
+        doc.text(`Valor del Trabajo: $${orderData.work_value}`);
+        doc.text(`Estado de la Orden: ${orderData.status}`);
+        doc.moveDown();
+
+        // Descripción del trabajo
+        doc.fontSize(16).text('Descripción del Trabajo');
+        doc.fontSize(14).text(orderData.work_description || 'No se ha proporcionado una descripción.');
+        doc.moveDown();
+
+        // Información detallada de la orden de trabajo
+        doc.fontSize(16).text('Detalles de la Orden de Trabajo');
+        doc.fontSize(14).text(`Número de Chasis: ${orderData.chassis_number}`);
+        doc.text(`Año del Vehículo: ${orderData.year_car}`);
+        doc.text(`Color: ${orderData.color}`);
+        doc.text(`Cantidad de Puertas: ${orderData.door_count}`);
+        doc.text(`Aire Acondicionado: ${orderData.air_conditioning}`);
+        doc.moveDown();
+
+        // Sección de Firma
+        doc.fontSize(16).text('Confirmación del Cliente');
+        doc.fontSize(12).text(`Declaro que he revisado el trabajo realizado en mi vehículo y que estoy satisfecho con los resultados. Confirmo que he recibido el vehículo en las condiciones detalladas en esta orden de trabajo.`);
+        doc.moveDown().moveDown();
+        doc.text('Firma: ___________________________', { align: 'left' });
+        doc.moveDown();doc.moveDown();
+        doc.text('Aclaración y DNI: ___________________________', { align: 'left' });
+        doc.moveDown();doc.moveDown();
+        doc.text('Fecha: ___________________', { align: 'left' });
+        doc.moveDown();
+
+        // Finalizar el documento
+        doc.end();
+    });
+});
+
+
+
+
 
 // 13. - Logout
 app.get('/logout', (req, res) => {
