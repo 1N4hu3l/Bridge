@@ -13,18 +13,22 @@
     <div class="body">
         <h1>Taller Page</h1>
         <% if (login) { %>
-            <h1>Usuario conectado: <strong><%= name %></strong></h1>
+            <h1>Usuario conectado: <strong>
+                    <%= name %>
+                </strong></h1>
             <a href="logout" class="a-logout">Logout</a>
-        <% } else { %>
-            <h1><strong><%= name %></strong></h1>
-            <a href="login" class="a-login">Ir a Login</a>
-        <% } %>
+            <% } else { %>
+                <h1><strong>
+                        <%= name %>
+                    </strong></h1>
+                <a href="login" class="a-login">Ir a Login</a>
+                <% } %>
     </div>
 
     <div class="btns-taller">
         <!-- Botón para mostrar/ocultar el formulario de presupuesto -->
         <button onclick="mostrarFormularioPresupuesto()" class="btn-crear-presupuesto">Crear Presupuesto</button>
-        <button class="btn-taller" onclick="">Órdenes Asignadas</button>
+        <button class="btn-taller" onclick="toggleOrdenesAsignadas()">Órdenes Asignadas</button>
         <button class="btn-taller" onclick="">Órdenes Finalizadas</button>
     </div>
     <!-- Formulario de presupuesto (oculto inicialmente) -->
@@ -56,8 +60,10 @@
             <label for="insurance_company_id">Aseguradora:</label>
             <select name="insurance_company_id" required>
                 <% aseguradoras.forEach(function(aseguradora) { %>
-                    <option value="<%= aseguradora.user_id %>"><%= aseguradora.name %></option>
-                <% }); %>
+                    <option value="<%= aseguradora.user_id %>">
+                        <%= aseguradora.name %>
+                    </option>
+                    <% }); %>
             </select>
 
             <label for="repair_parts">Partes a Reparar:</label>
@@ -88,6 +94,30 @@
         </form>
     </div>
 
+
+    <div id="ordenesContenedor" style="display: none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Orden ID</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Patente</th>
+                    <th>Dueño</th>
+                    <th>Teléfono</th>
+                    <th>Valor</th>
+                    <th>Estado</th>
+                    <th>Fecha de Orden</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="ordenesTablaBody">
+                <!-- Las filas de órdenes se insertarán aquí -->
+            </tbody>
+        </table>
+    </div>
+
+
     <!-- Script para mostrar/ocultar el formulario -->
     <script>
         function mostrarFormularioPresupuesto() {
@@ -98,6 +128,61 @@
                 formulario.style.display = "none";
             }
         }
+
+
+        let ordenesCargadas = false; // Bandera para verificar si ya se han cargado las órdenes
+
+        function toggleOrdenesAsignadas() {
+            const contenedor = document.getElementById('ordenesContenedor');
+
+            if (contenedor.style.display === "none") {
+                // Mostrar el contenedor
+                contenedor.style.display = "block";
+
+                // Cargar órdenes solo si aún no se han cargado
+                if (!ordenesCargadas) {
+                    cargarOrdenesAsignadas();
+                    ordenesCargadas = true; // Actualizar la bandera para no volver a cargar
+                }
+            } else {
+                // Ocultar el contenedor
+                contenedor.style.display = "none";
+            }
+        }
+
+        function cargarOrdenesAsignadas() {
+            fetch('/ordenesAsignadas')
+                .then(response => response.json())
+                .then(ordenes => {
+                    const tablaBody = document.getElementById('ordenesTablaBody');
+                    tablaBody.innerHTML = ''; // Limpiar cualquier contenido previo
+
+                    ordenes.forEach(orden => {
+                        const fila = document.createElement('tr');
+                        fila.innerHTML = `
+                        <td>${orden.order_id}</td>
+                        <td>${orden.vehicle_make}</td>
+                        <td>${orden.vehicle_model}</td>
+                        <td>${orden.license_plate}</td>
+                        <td>${orden.owner_name}</td>
+                        <td>${orden.owner_phone}</td>
+                        <td>${orden.work_value}</td>
+                        <td>${orden.status}</td>
+                        <td>${new Date(orden.order_date).toISOString().split('T')[0]}</td>
+                        <td>
+                            <button>Descargar PDF</button>
+                            <button>Marcar como Finalizado</button>
+                        </td>
+                    `;
+                        tablaBody.appendChild(fila);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error al cargar las órdenes asignadas:", error);
+                });
+        }
+
+
     </script>
 </body>
 

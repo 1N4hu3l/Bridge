@@ -452,6 +452,70 @@ app.get('/interaseg/:id', (req, res) => {
     });
 });
 
+// Ruta para crear una nueva orden de trabajo
+app.post('/crearOrden', (req, res) => {
+    const {
+        budget_id,
+        chassis_number,
+        year,
+        color,
+        door_count,
+        ac
+    } = req.body;
+
+    // Verificar si el usuario está autenticado
+    if (!req.session.loggedin) {
+        return res.redirect('/login');
+    }
+
+    const user_id = req.session.user_id; // Obtiene el ID del usuario autenticado
+
+    // Insertar datos en work_order
+    const query = `
+        INSERT INTO work_order 
+        (budget_id, user_id, chassis_number, year_car, color, door_count, air_conditioning)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    connection.query(query, [
+        budget_id, user_id, chassis_number, year, color, door_count, ac
+    ], (error, results) => {
+        if (error) {
+            console.error("Error al crear la orden de trabajo:", error);
+            return res.status(500).send("Error al crear la orden de trabajo");
+        }
+
+        res.redirect('/interaseg'); // Redirige de nuevo a la página principal de aseguradora
+    });
+});
+
+
+// Ruta para obtener las órdenes asignadas en formato JSON
+app.get('/ordenesAsignadas', (req, res) => {
+    if (!req.session.loggedin || req.session.rol !== 'taller') {
+        return res.status(401).json({ error: "No tienes permiso para ver esta información." });
+    }
+
+    const userId = req.session.user_id;
+
+    const query = `
+        SELECT budgets.budget_id, budgets.vehicle_make, budgets.vehicle_model, budgets.license_plate,
+               budgets.owner_name, budgets.owner_phone, budgets.work_value, work_order.order_id,
+               work_order.status, work_order.created_at AS order_date
+        FROM budgets
+        INNER JOIN work_order ON budgets.budget_id = work_order.budget_id
+        WHERE budgets.user_id = ?
+    `;
+
+    connection.query(query, [userId], (error, results) => {
+        if (error) {
+            console.error("Error al obtener órdenes asignadas:", error);
+            return res.status(500).json({ error: "Error al obtener órdenes asignadas." });
+        }
+
+        res.json(results); // Enviar las órdenes como JSON
+    });
+});
 
 
 
