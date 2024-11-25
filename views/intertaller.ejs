@@ -144,6 +144,11 @@
             <label for="signed_pdf">PDF de Orden Firmada:</label>
             <input type="file" name="signed_pdf" accept="application/pdf">
 
+            <label for="additional_docs">Documentación Adicional:</label>
+            <input type="file" id="additional_docs" name="additional_docs"
+                accept=".pdf, .doc, .docx, .jpg, .jpeg, .png">
+
+
             <button type="submit" class="btn-finalizar-orden">Marcar como Finalizado</button>
             <button type="button" onclick="cerrarFormularioFinalizacion()" class="btn-cancelar">Cancelar</button>
         </form>

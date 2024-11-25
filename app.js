@@ -199,25 +199,47 @@ app.get('/', (req, res) => {
 // Ruta para interaseg, solo accesible para usuarios con rol 'aseguradora'
 app.get('/interaseg', (req, res) => {
     if (req.session.loggedin && req.session.rol === 'aseguradora') {
-        // Consultar los presupuestos asignados a la aseguradora
-        connection.query(`
+        // Consultar presupuestos asignados a la aseguradora
+        const presupuestosQuery = `
             SELECT budgets.budget_id, budgets.vehicle_make, budgets.vehicle_model, budgets.license_plate, 
                    budgets.owner_name, budgets.owner_phone, budgets.work_value, 
                    users.name AS taller_name
             FROM budgets 
             INNER JOIN users ON budgets.user_id = users.user_id 
-            WHERE budgets.insurance_company_id = ?`, [req.session.user_id], (error, presupuestos) => {
+            WHERE budgets.insurance_company_id = ?
+        `;
+
+        // Consultar órdenes pendientes de aprobación
+        const ordenesPendientesQuery = `
+            SELECT work_order.*, budgets.vehicle_make, budgets.vehicle_model, budgets.license_plate,
+                   budgets.owner_name, budgets.owner_phone, users.name AS taller_name
+            FROM work_order
+            INNER JOIN budgets ON work_order.budget_id = budgets.budget_id
+            INNER JOIN users ON budgets.user_id = users.user_id
+            WHERE work_order.status = 'pendiente' AND budgets.insurance_company_id = ?
+        `;
+
+        connection.query(presupuestosQuery, [req.session.user_id], (error, presupuestos) => {
             if (error) {
                 console.log(error);
-                res.redirect('/');
-            } else {
+                return res.redirect('/');
+            }
+
+            connection.query(ordenesPendientesQuery, [req.session.user_id], (error, ordenesPendientes) => {
+                if (error) {
+                    console.log(error);
+                    return res.redirect('/');
+                }
+
+                // Renderizar la vista `interaseg` con `presupuestos` y `ordenesPendientes`
                 res.render('interaseg', {
                     login: true,
                     name: req.session.name,
                     presupuestos: presupuestos,
+                    ordenesPendientes: ordenesPendientes,
                     presupuesto: {} // Pasamos un presupuesto vacío por defecto
                 });
-            }
+            });
         });
     } else {
         res.render('login', {
@@ -231,6 +253,7 @@ app.get('/interaseg', (req, res) => {
         });
     }
 });
+
 
 
 const fs = require('fs');
@@ -445,6 +468,7 @@ app.get('/interaseg/:id', (req, res) => {
         // Renderiza la vista y pasa el presupuesto
         res.render('interaseg', { presupuesto });
     });
+    
 });
 
 // Ruta para crear una nueva orden de trabajo
@@ -612,17 +636,75 @@ app.post('/finalizarOrden', async (req, res) => {
         pdfDataBuffer = req.files.signed_pdf.data;
     }
 
-    // Insertar en la tabla order_completions
-    const query = `INSERT INTO order_completions (order_id, completion_date, completed_photos, signed_pdf)
-                   VALUES (?, ?, ?, ?)`;
-    connection.query(query, [order_id, completion_date, JSON.stringify(completedPhotos), pdfDataBuffer], (error) => {
+    // Actualizar en la tabla work_order
+    const query = `UPDATE work_order SET 
+                    completion_date = ?, 
+                    completed_photos = ?, 
+                    signed_pdf = ?, 
+                    additional_docs = ?, 
+                    status = 'pendiente'  -- Actualizar el estado a "pendiente"
+                    WHERE order_id = ?`;
+                    
+    connection.query(query, [completion_date, JSON.stringify(completedPhotos), pdfDataBuffer, req.files.additional_docs?.data, order_id], (error) => {
         if (error) {
             console.error("Error al finalizar la orden:", error);
             return res.redirect('/');  
         }
         res.redirect('/');  // Redirige a la página de órdenes asignadas
     });
-})
+});
+
+
+app.get('/gestionarOrdenes', (req, res) => {
+    if (req.session.loggedin && req.session.rol === 'aseguradora') {
+        // Consulta de presupuestos
+        const presupuestosQuery = `
+            SELECT budgets.budget_id, budgets.vehicle_make, budgets.vehicle_model, budgets.license_plate, 
+                   budgets.owner_name, budgets.owner_phone, budgets.work_value, 
+                   users.name AS taller_name
+            FROM budgets 
+            INNER JOIN users ON budgets.user_id = users.user_id 
+            WHERE budgets.insurance_company_id = ?
+        `;
+        
+        // Consulta de órdenes pendientes
+        const ordenesPendientesQuery = `
+            SELECT work_order.*, budgets.vehicle_make, budgets.vehicle_model, budgets.license_plate,
+                   budgets.owner_name, budgets.owner_phone, users.name AS taller_name
+            FROM work_order
+            INNER JOIN budgets ON work_order.budget_id = budgets.budget_id
+            INNER JOIN users ON budgets.user_id = users.user_id
+            WHERE work_order.status = 'pendiente' AND budgets.insurance_company_id = ?
+        `;
+
+        // Ejecutar consultas y pasar los resultados a la vista
+        connection.query(presupuestosQuery, [req.session.user_id], (error, presupuestos) => {
+            if (error) {
+                console.error("Error al obtener presupuestos:", error);
+                return res.redirect('/');
+            }
+            connection.query(ordenesPendientesQuery, [req.session.user_id], (error, ordenesPendientes) => {
+                if (error) {
+                    console.error("Error al obtener órdenes pendientes:", error);
+                    return res.redirect('/');
+                }
+                
+                // Renderizar la vista con ambos datos
+                res.render('interaseg', {
+                    login: true,
+                    name: req.session.name,
+                    presupuestos: presupuestos,
+                    ordenesPendientes: ordenesPendientes,
+                    presupuesto: {}
+                });
+            });
+        });
+    } else {
+        res.redirect('/login');
+    }
+});
+
+
 // 13. - Logout
 app.get('/logout', (req, res) => {
     req.session.destroy(() => {
